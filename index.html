@@ -241,8 +241,6 @@ function finishExport(name) {
     if (currentExportType === 'jpg') {
         const captureArea = document.getElementById('capture-area');
         const title = document.getElementById('main-title');
-        
-        // 🚀 PREPARE FOR DESKTOP CAPTURE
         const originalStyle = captureArea.style.cssText;
         const originalTitleStyle = title.style.cssText;
         
@@ -250,9 +248,7 @@ function finishExport(name) {
         title.style.background = "none"; title.style.webkitTextFillColor = "#fdb719"; title.style.color = "#fdb719";
 
         html2canvas(captureArea, { 
-            backgroundColor: '#0a0a0a', 
-            scale: 2,
-            windowWidth: 1200,
+            backgroundColor: '#0a0a0a', scale: 2, windowWidth: 1200,
             onclone: (clonedDoc) => {
                 const clonedArea = clonedDoc.getElementById('capture-area');
                 clonedArea.style.width = '1200px';
@@ -261,16 +257,15 @@ function finishExport(name) {
                     div.innerText = s.value;
                     let style = s.id === 'CHAMPION' ? 
                         "font-size:1.8rem; color:#fdb719; font-family:'Tourney'; background:#000; border:2px solid #fdb719; padding:15px 30px; border-radius:12px; display:inline-block;" :
-                        "background:#1e293b; color:white; padding:12px; border:1px solid #02a7d1; border-radius:8px; text-align:center; font-weight:bold; font-size:0.8rem;";
+                        "background:#1e293b; color:white; padding:10px; border:1px solid #02a7d1; border-radius:8px; text-align:center; font-weight:bold; font-size:0.8rem;";
                     div.style.cssText = style;
                     s.parentNode.replaceChild(div, s);
                 });
             }
         }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `T20WC-Predictions.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
-            link.click();
+            const link = document.createElement('a'); 
+            link.download = `T20WC-Predictions.jpg`; 
+            link.href = canvas.toDataURL('image/jpeg', 0.9); link.click();
             captureArea.style.cssText = originalStyle;
             title.style.cssText = originalTitleStyle;
         });
@@ -318,14 +313,21 @@ function fill(i1, i2, p) {
 }
 
 function copyToText(user) {
-    let header = user ? `🏆 *T20 WC Predictions by ${user}*` : `🏆 *My T20 WC Predictions*`;
+    let header = user ? `🏆 *T20 WC 2026 Predictions by ${user}*` : `🏆 *My T20 WC 2026 Predictions*`;
     const text = `${header}\n📅 Date: ${today}\n\n` +
-    `🔥 *Super 8s Group 1:* ${v('S8G1W')}, ${v('S8G1RU')}\n` +
-    `🔥 *Super 8s Group 2:* ${v('S8G2W')}, ${v('S8G2RU')}\n\n` +
-    `🚀 *Semi Final 1:* ${v('S8G1W')} vs ${v('S8G2RU')}\n` +
-    `🚀 *Semi Final 2:* ${v('S8G2W')} vs ${v('S8G1RU')}\n\n` +
+    `📌 *Group Stage Qualifiers:*\n` +
+    `• Group A: ${v('A1')}, ${v('A2')}\n` +
+    `• Group B: ${v('B2')}, ${v('B1')}\n` +
+    `• Group C: ${v('C1')}, ${v('C2')}\n` +
+    `• Group D: ${v('D2')}, ${v('D1')}\n\n` +
+    `🔥 *Super 8s Groups:*\n` +
+    `• Group 1: ${v('S8G1W')}, ${v('S8G1RU')}\n` +
+    `• Group 2: ${v('S8G2W')}, ${v('S8G2RU')}\n\n` +
+    `🚀 *Semi Finals:*\n` +
+    `• SF 1: ${v('S8G1W')} vs ${v('S8G2RU')}\n` +
+    `• SF 2: ${v('S8G2W')} vs ${v('S8G1RU')}\n\n` +
     `🏆 *CHAMPION:* ${v('CHAMPION')}\n\n` +
-    `Predict yours here: ${window.location.href}`;
+    `Predict your path here: ${window.location.href}`;
 
     navigator.clipboard.writeText(text).then(() => {
         const t = document.getElementById("toast"); t.className = "show"; setTimeout(() => t.className = "", 3000);
