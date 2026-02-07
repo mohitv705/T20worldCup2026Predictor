@@ -36,7 +36,6 @@
             padding: 20px 10px; 
             background: radial-gradient(circle at top left, #133a75, #0a0a0a);
             border-radius: 15px;
-            transition: width 0.1s ease; /* Smooth transition for export spoofing */
         }
 
         h1 {
@@ -240,40 +239,40 @@ function finishExport(name) {
     else { stamp.style.display = "none"; }
 
     if (currentExportType === 'jpg') {
-        const title = document.getElementById('main-title');
         const captureArea = document.getElementById('capture-area');
+        const title = document.getElementById('main-title');
         
-        // 🚀 FORCE DESKTOP WIDTH FOR CAPTURE
-        const originalWidth = captureArea.style.width;
+        // 🚀 PREPARE FOR DESKTOP CAPTURE
+        const originalStyle = captureArea.style.cssText;
+        const originalTitleStyle = title.style.cssText;
+        
         captureArea.style.width = '1200px';
-
-        const origTitle = title.style.cssText;
         title.style.background = "none"; title.style.webkitTextFillColor = "#fdb719"; title.style.color = "#fdb719";
 
         html2canvas(captureArea, { 
             backgroundColor: '#0a0a0a', 
             scale: 2,
-            windowWidth: 1200, // Spoofing desktop window
-            onclone: (cloned) => {
-                cloned.querySelectorAll('select').forEach(s => {
-                    const div = cloned.createElement('div');
+            windowWidth: 1200,
+            onclone: (clonedDoc) => {
+                const clonedArea = clonedDoc.getElementById('capture-area');
+                clonedArea.style.width = '1200px';
+                clonedDoc.querySelectorAll('select').forEach(s => {
+                    const div = clonedDoc.createElement('div');
                     div.innerText = s.value;
                     let style = s.id === 'CHAMPION' ? 
                         "font-size:1.8rem; color:#fdb719; font-family:'Tourney'; background:#000; border:2px solid #fdb719; padding:15px 30px; border-radius:12px; display:inline-block;" :
-                        "background:#1e293b; color:white; padding:10px; border:1px solid #02a7d1; border-radius:8px; text-align:center; font-weight:bold; font-size:0.8rem;";
+                        "background:#1e293b; color:white; padding:12px; border:1px solid #02a7d1; border-radius:8px; text-align:center; font-weight:bold; font-size:0.8rem;";
                     div.style.cssText = style;
                     s.parentNode.replaceChild(div, s);
                 });
             }
         }).then(canvas => {
-            const link = document.createElement('a'); 
-            link.download = `T20WC-Predictions.jpg`; 
-            link.href = canvas.toDataURL('image/jpeg', 0.9); 
+            const link = document.createElement('a');
+            link.download = `T20WC-Predictions.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
             link.click();
-            
-            // REVERT BACK TO RESPONSIVE
-            title.style.cssText = origTitle;
-            captureArea.style.width = originalWidth;
+            captureArea.style.cssText = originalStyle;
+            title.style.cssText = originalTitleStyle;
         });
     } else { copyToText(name); }
     nameInput.value = "";
@@ -304,6 +303,7 @@ function update() {
     document.getElementById('venueNote').innerText = "📍 Final: " + (f.join('').includes('Pakistan') ? "Colombo" : "Ahmedabad");
     save();
 }
+
 function v(id) { return document.getElementById(id).value; }
 function fill(i1, i2, p) {
     const e1 = document.getElementById(i1); const val1 = e1.value;
