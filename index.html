@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T20 WC 2026 Predictor | Elite Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Tourney:wght@600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #1c5d9c; --accent: #02a7d1; --rose: #da2c5a; --gold: #fdb719;
+            --glass: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            margin: 0; padding: 20px; font-family: 'Inter', sans-serif;
+            background: #0a0a0a; background-attachment: fixed; color: #f8fafc;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; text-align: center; position: relative; }
+
+        .info-btn {
+            position: absolute; top: 10px; right: 10px;
+            width: 35px; height: 35px; background: var(--glass);
+            border: 1px solid var(--gold); border-radius: 50%;
+            color: var(--gold); font-family: 'Tourney', cursive;
+            font-size: 1.2rem; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+            transition: 0.3s; z-index: 100;
+        }
+        .info-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
+
+        #capture-area { 
+            padding: 40px; 
+            background: radial-gradient(circle at top left, #133a75, #0a0a0a);
+            border-radius: 20px;
+        }
+
+        h1 {
+            font-family: 'Tourney', cursive; font-size: clamp(2.5rem, 6vw, 4.5rem); margin: 0;
+            background: linear-gradient(to right, var(--gold), #fff);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            text-transform: uppercase;
+        }
+
+        .subtitle { color: var(--accent); letter-spacing: 2px; font-weight: 700; margin-bottom: 20px; font-size: 0.9rem; }
+        #date-display { color: var(--gold); font-weight: bold; margin-bottom: 20px; display: block; }
+        #user-stamp { color: #fff; font-size: 1.2rem; margin-bottom: 20px; font-style: italic; display: none; }
+
+        .stage-title {
+            font-family: 'Tourney', cursive; font-size: 1.8rem; color: var(--rose);
+            margin: 50px 0 20px; text-align: left; border-bottom: 2px solid var(--rose);
+            display: inline-block; padding-right: 50px;
+        }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        .card { background: var(--glass); border-radius: 20px; border: 1px solid var(--glass-border); padding: 25px; }
+
+        h2 { font-size: 1.1rem; color: #fff; margin-bottom: 10px; text-transform: uppercase; }
+        .dynamic-list { font-size: 0.85rem; color: var(--accent); margin-bottom: 15px; font-weight: 600; min-height: 1.2rem; }
+
+        select {
+            width: 100%; padding: 12px 35px 12px 12px; margin: 8px 0; background: #1e293b;
+            color: #fff; border: 1px solid var(--accent); border-radius: 8px;
+            font-size: 1rem; font-weight: 600; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: calc(100% - 12px) center; text-align-last: center;
+        }
+
+        .winner-box {
+            background: rgba(253, 183, 25, 0.15); border: 3px solid var(--gold); 
+            border-radius: 30px; padding: 60px 20px; margin-top: 60px;
+        }
+
+        #CHAMPION {
+            font-size: 2.2rem; color: var(--gold); font-family: 'Tourney';
+            background: #0a0a0a; border: 2px solid var(--gold); padding: 15px 50px 15px 30px;
+            border-radius: 12px; width: auto; max-width: 90%; text-align: center;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='%23fdb719' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: calc(100% - 15px) center;
+        }
+
+        .action-btns { margin-top: 40px; display: flex; gap: 10px; justify-content: center; }
+        .btn { padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; }
+        .btn-download { background: var(--gold); color: #000; }
+        .btn-copy { background: var(--accent); color: #fff; }
+        .btn-reset { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--glass-border); }
+
+        .signature { margin-top: 50px; font-size: 1rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; text-transform: uppercase; border-top: 1px solid var(--glass-border); padding-top: 20px; }
+
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000;
+            justify-content: center; align-items: center;
+        }
+        .modal {
+            background: #1e293b; border: 2px solid var(--gold); padding: 30px;
+            border-radius: 20px; width: 90%; max-width: 480px; text-align: left;
+        }
+        .modal h3 { color: var(--gold); font-family: 'Tourney'; font-size: 1.5rem; text-align: center; margin: 0 0 15px 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+        .modal h4 { color: var(--accent); margin: 15px 0 5px 0; text-transform: uppercase; font-size: 0.85rem; }
+        .modal ul { color: #f8fafc; line-height: 1.5; padding-left: 18px; font-size: 0.9rem; }
+        .modal input {
+            width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid var(--accent);
+            background: #0a0a0a; color: #fff; font-size: 1rem; box-sizing: border-box;
+        }
+        .modal-btns { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--gold); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; z-index: 9999; }
+        #toast.show { visibility: visible; }
+    </style>
+</head>
+<body>
+
+<div id="info-overlay" class="overlay">
+    <div class="modal">
+        <h3>HOW TO PLAY</h3>
+        <h4>Predict the Path</h4>
+        <ul>
+            <li><strong>Group Stage:</strong> Pick the top 2 teams from each group.</li>
+            <li><strong>Super 8s:</strong> Teams auto-fill based on official seedings. Select the Winner & Runner-up.</li>
+            <li><strong>Knockouts:</strong> Crossover Semi-Final logic is handled automatically. Pick your finalists and ultimate Champion!</li>
+        </ul>
+        <h4>Export & Share</h4>
+        <ul>
+            <li><strong>Personalization:</strong> Enter your name during export to stamp the results with your identity.</li>
+            <li><strong>Download Image:</strong> Get a high-resolution, pixel-perfect graphic of your full tournament path.</li>
+            <li><strong>Copy as Text:</strong> Generate an emoji-rich summary perfectly formatted for WhatsApp and LinkedIn.</li>
+        </ul>
+        <div class="modal-btns">
+            <button class="btn btn-modal-ok" onclick="closeModal('info-overlay')">Start Predicting!</button>
+        </div>
+    </div>
+</div>
+
+<div id="export-overlay" class="overlay">
+    <div class="modal" style="text-align:center;">
+        <h3>STAMP YOUR PICKS</h3>
+        <input type="text" id="user-name-input" placeholder="Your Name" maxlength="20">
+        <div class="modal-btns">
+            <button class="btn btn-modal-ok" id="modal-ok">Confirm</button>
+            <button class="btn btn-modal-skip" id="modal-skip">Skip</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <button class="info-btn" onclick="openModal('info-overlay')">i</button>
+    
+    <div id="capture-area">
+        <h1 id="main-title">T20 World Cup</h1>
+        <div class="subtitle">PREDICTOR 2026 • FEB 07 - MAR 08</div>
+        <span id="date-display"></span>
+        <div id="user-stamp"></div>
+
+        <div class="stage-title">01. Group Stage</div>
+        <div class="grid">
+            <div class="card">
+                <h2>GROUP A</h2><div class="dynamic-list">India, Pakistan, USA, Netherlands, Namibia</div>
+                <select id="A1" onchange="validate('A1', 'A2')"><option value="India" selected>India</option><option value="Pakistan">Pakistan</option><option value="USA">USA</option><option value="Netherlands">Netherlands</option><option value="Namibia">Namibia</option></select>
+                <select id="A2" onchange="validate('A2', 'A1')"><option value="India">India</option><option value="Pakistan" selected>Pakistan</option><option value="USA">USA</option><option value="Netherlands">Netherlands</option><option value="Namibia">Namibia</option></select>
+            </div>
+            <div class="card">
+                <h2>GROUP B</h2><div class="dynamic-list">Australia, Sri Lanka, Zimbabwe, Ireland, Oman</div>
+                <select id="B2" onchange="validate('B2', 'B1')"><option value="Australia" selected>Australia</option><option value="Sri Lanka">Sri Lanka</option><option value="Zimbabwe">Zimbabwe</option><option value="Ireland">Ireland</option><option value="Oman">Oman</option></select>
+                <select id="B1" onchange="validate('B1', 'B2')"><option value="Australia">Australia</option><option value="Sri Lanka" selected>Sri Lanka</option><option value="Zimbabwe">Zimbabwe</option><option value="Ireland">Ireland</option><option value="Oman">Oman</option></select>
+            </div>
+            <div class="card">
+                <h2>GROUP C</h2><div class="dynamic-list">West Indies, England, Scotland, Nepal, Italy</div>
+                <select id="C1" onchange="validate('C1', 'C2')"><option value="West Indies" selected>West Indies</option><option value="England">England</option><option value="Scotland">Scotland</option><option value="Nepal">Nepal</option><option value="Italy">Italy</option></select>
+                <select id="C2" onchange="validate('C2', 'C1')"><option value="West Indies">West Indies</option><option value="England" selected>England</option><option value="Scotland">Scotland</option><option value="Nepal">Nepal</option><option value="Italy">Italy</option></select>
+            </div>
+            <div class="card">
+                <h2>GROUP D</h2><div class="dynamic-list">South Africa, New Zealand, Afghanistan, Canada, UAE</div>
+                <select id="D2" onchange="validate('D2', 'D1')"><option value="South Africa" selected>South Africa</option><option value="New Zealand">New Zealand</option><option value="Afghanistan">Afghanistan</option><option value="Canada">Canada</option><option value="UAE">UAE</option></select>
+                <select id="D1" onchange="validate('D1', 'D2')"><option value="South Africa">South Africa</option><option value="New Zealand" selected>New Zealand</option><option value="Afghanistan">Afghanistan</option><option value="Canada">Canada</option><option value="UAE">UAE</option></select>
+            </div>
+        </div>
+
+        <div class="stage-title">02. Super 8s</div>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card">
+                <h2 style="color:var(--gold)">GROUP 1</h2><div class="dynamic-list" id="listS8G1"></div>
+                <select id="S8G1W" onchange="validate('S8G1W', 'S8G1RU')"></select>
+                <select id="S8G1RU" onchange="validate('S8G1RU', 'S8G1W')"></select>
+            </div>
+            <div class="card">
+                <h2 style="color:var(--gold)">GROUP 2</h2><div class="dynamic-list" id="listS8G2"></div>
+                <select id="S8G2W" onchange="validate('S8G2W', 'S8G2RU')"></select>
+                <select id="S8G2RU" onchange="validate('S8G2RU', 'S8G2W')"></select>
+            </div>
+        </div>
+
+        <div class="stage-title">03. Knockouts</div>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+            <div class="card"><h2>SEMI 1</h2><div class="dynamic-list" id="listSF1"></div><select id="SF1_Winner" onchange="update()"></select></div>
+            <div class="card"><h2>SEMI 2</h2><div class="dynamic-list" id="listSF2"></div><select id="SF2_Winner" onchange="update()"></select></div>
+        </div>
+
+        <div class="winner-box">
+            <div class="dynamic-list" id="listFinal" style="font-family:'Tourney'; font-size:2rem; color:#fff;"></div>
+            <select id="CHAMPION"></select>
+            <p id="venueNote" style="color:var(--accent); margin-top:15px; font-weight:bold;"></p>
+        </div>
+    </div>
+
+    <div class="signature">Created by Mohit Vora</div>
+
+    <div class="action-btns">
+        <button class="btn btn-download" id="start-jpg">📥 Download Image</button>
+        <button class="btn btn-copy" id="start-text">📋 Copy as Text</button>
+        <button class="btn btn-reset" onclick="resetAll()">🔄 Reset</button>
+    </div>
+</div>
+
+<div id="toast">✅ Predictions Copied!</div>
+
+<script>
+const IDs = ['A1','A2','B1','B2','C1','C2','D1','D2','S8G1W','S8G1RU','S8G2W','S8G2RU','SF1_Winner','SF2_Winner','CHAMPION'];
+const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+document.getElementById('date-display').innerText = `Date: ${today}`;
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+let currentExportType = null;
+const exportOverlay = document.getElementById('export-overlay');
+const nameInput = document.getElementById('user-name-input');
+
+document.getElementById('start-jpg').onclick = () => { currentExportType = 'jpg'; openModal('export-overlay'); nameInput.focus(); };
+document.getElementById('start-text').onclick = () => { currentExportType = 'text'; openModal('export-overlay'); nameInput.focus(); };
+
+document.getElementById('modal-skip').onclick = () => finishExport("");
+document.getElementById('modal-ok').onclick = () => finishExport(nameInput.value);
+
+function finishExport(name) {
+    closeModal('export-overlay');
+    const stamp = document.getElementById('user-stamp');
+    if (name.trim()) { stamp.innerText = `Predictions by ${name}`; stamp.style.display = "block"; } 
+    else { stamp.style.display = "none"; }
+
+    if (currentExportType === 'jpg') {
+        const title = document.getElementById('main-title');
+        const originalStyle = title.style.cssText;
+        title.style.background = "none";
+        title.style.webkitTextFillColor = "#fdb719";
+        title.style.color = "#fdb719";
+
+        html2canvas(document.getElementById('capture-area'), { 
+            backgroundColor: '#0a0a0a', scale: 2,
+            onclone: (clonedDoc) => {
+                clonedDoc.querySelectorAll('select').forEach(s => {
+                    const div = clonedDoc.createElement('div');
+                    div.innerText = s.value;
+                    let style = s.id === 'CHAMPION' ? 
+                        "font-size:2rem; color:#fdb719; font-family:'Tourney'; background:#000; border:2px solid #fdb719; padding:15px 30px; border-radius:12px; display:inline-block;" :
+                        "background:#1e293b; color:white; padding:12px; border:1px solid #02a7d1; border-radius:8px; text-align:center; font-weight:bold;";
+                    div.style.cssText = style;
+                    s.parentNode.replaceChild(div, s);
+                });
+            }
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `T20-WC-Predictions.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.click();
+            title.style.cssText = originalStyle;
+        });
+    } else { copyToText(name); }
+    nameInput.value = "";
+}
+
+function validate(cId, oId) {
+    const c = document.getElementById(cId), o = document.getElementById(oId);
+    if (c.value === o.value) {
+        for (let i = 0; i < o.options.length; i++) {
+            if (o.options[i].value !== c.value) { o.selectedIndex = i; break; }
+        }
+    }
+    update();
+}
+
+function update() {
+    const g1 = [v('A1'), v('B2'), v('C1'), v('D2')], g2 = [v('A2'), v('B1'), v('C2'), v('D1')];
+    document.getElementById('listS8G1').innerText = g1.join(', ');
+    document.getElementById('listS8G2').innerText = g2.join(', ');
+    fill('S8G1W', 'S8G1RU', g1); fill('S8G2W', 'S8G2RU', g2);
+    const sf1 = [v('S8G1W'), v('S8G2RU')], sf2 = [v('S8G2W'), v('S8G1RU')];
+    document.getElementById('listSF1').innerText = sf1.join(' vs ');
+    document.getElementById('listSF2').innerText = sf2.join(' vs ');
+    fill('SF1_Winner', 'null', sf1); fill('SF2_Winner', 'null', sf2);
+    const f = [v('SF1_Winner'), v('SF2_Winner')];
+    document.getElementById('listFinal').innerText = f.join(' vs ');
+    fill('CHAMPION', 'null', f);
+    document.getElementById('venueNote').innerText = "📍 Final: " + (f.join('').includes('Pakistan') ? "Colombo" : "Ahmedabad");
+    save();
+}
+
+function v(id) { return document.getElementById(id).value; }
+function fill(i1, i2, p) {
+    const e1 = document.getElementById(i1); const val1 = e1.value;
+    e1.innerHTML = p.map(t => `<option value="${t}">${t}</option>`).join('');
+    if (p.includes(val1)) e1.value = val1;
+    if (i2 !== 'null') {
+        const e2 = document.getElementById(i2); const val2 = e2.value;
+        e2.innerHTML = p.map(t => `<option value="${t}">${t}</option>`).join('');
+        if (e2.value === e1.value) e2.selectedIndex = (e1.selectedIndex + 1) % p.length;
+        else if (p.includes(val2)) e2.value = val2;
+    }
+}
+function copyToText(user) {
+    let header = user ? `🏆 *T20 WC Predictions by ${user}*` : `🏆 *My T20 WC Predictions*`;
+    const text = `${header}\n📅 Date: ${today}\n\n*Group 1:* ${v('S8G1W')}, ${v('S8G1RU')}\n*Group 2:* ${v('S8G2W')}, ${v('S8G2RU')}\n\n🚀 *SF 1:* ${v('S8G1W')} vs ${v('S8G2RU')}\n🚀 *SF 2:* ${v('S8G2W')} vs ${v('S8G1RU')}\n\n🏆 *CHAMPION:* ${v('CHAMPION')}\n\nPredict yours: ${window.location.href}`;
+    navigator.clipboard.writeText(text).then(() => {
+        const t = document.getElementById("toast"); t.className = "show"; setTimeout(() => t.className = "", 3000);
+    });
+}
+function save() { const s = {}; IDs.forEach(id => s[id] = document.getElementById(id).value); localStorage.setItem('t20wc_v2', JSON.stringify(s)); }
+window.onload = () => {
+    const s = localStorage.getItem('t20wc_v2');
+    if (s) { const obj = JSON.parse(s); IDs.forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = obj[id]; }); }
+    update();
+};
+function resetAll() { localStorage.removeItem('t20wc_v2'); location.reload(); }
+</script>
+</body>
+</html>
