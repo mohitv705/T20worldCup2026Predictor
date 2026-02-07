@@ -36,6 +36,7 @@
             padding: 20px 10px; 
             background: radial-gradient(circle at top left, #133a75, #0a0a0a);
             border-radius: 15px;
+            transition: width 0.1s ease; /* Smooth transition for export spoofing */
         }
 
         h1 {
@@ -70,7 +71,6 @@
         h2 { font-size: 1rem; color: #fff; margin-bottom: 10px; text-transform: uppercase; }
         .dynamic-list { font-size: 0.75rem; color: var(--accent); margin-bottom: 10px; font-weight: 600; min-height: 1rem; }
 
-        /* Stage Dropdowns */
         select {
             width: 100%; padding: 10px 30px 10px 10px; margin: 5px 0; background: #1e293b;
             color: #fff; border: 1px solid var(--accent); border-radius: 8px;
@@ -84,7 +84,6 @@
             border-radius: 20px; padding: 50px 20px; margin-top: 40px;
         }
 
-        /* RESTORED CHAMPION UI */
         #CHAMPION {
             font-size: clamp(1.5rem, 6vw, 2.2rem); color: var(--gold); font-family: 'Tourney';
             background: #0a0a0a; border: 2px solid var(--gold); padding: 12px 45px 12px 25px;
@@ -112,7 +111,6 @@
             border-radius: 15px; width: 100%; max-width: 400px; box-sizing: border-box;
         }
         .modal h3 { color: var(--gold); font-family: 'Tourney'; font-size: 1.3rem; margin: 0 0 10px 0; }
-        .modal ul { color: #f8fafc; line-height: 1.4; padding-left: 15px; font-size: 0.85rem; text-align: left; }
         .modal input {
             width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid var(--accent);
             background: #0a0a0a; color: #fff; font-size: 1rem; box-sizing: border-box;
@@ -127,10 +125,10 @@
 <div id="info-overlay" class="overlay">
     <div class="modal">
         <h3>HOW TO PLAY</h3>
-        <ul>
-            <li><strong>Predict Path:</strong> Pick top 2 from Group stage to final.</li>
+        <ul style="color: #f8fafc; line-height: 1.4; padding-left: 15px; font-size: 0.85rem; text-align: left;">
+            <li><strong>Predict Path:</strong> Pick top 2 from Group stage.</li>
             <li><strong>Auto-Fill:</strong> Super 8s fill by official seedings.</li>
-            <li><strong>Share:</strong> Personalize with your name and download as Image or Text.</li>
+            <li><strong>Share:</strong> Personalize and download as a high-res Image or Text.</li>
         </ul>
         <button class="btn btn-download" style="width:100%" onclick="closeModal('info-overlay')">GO!</button>
     </div>
@@ -243,11 +241,19 @@ function finishExport(name) {
 
     if (currentExportType === 'jpg') {
         const title = document.getElementById('main-title');
-        const orig = title.style.cssText;
+        const captureArea = document.getElementById('capture-area');
+        
+        // 🚀 FORCE DESKTOP WIDTH FOR CAPTURE
+        const originalWidth = captureArea.style.width;
+        captureArea.style.width = '1200px';
+
+        const origTitle = title.style.cssText;
         title.style.background = "none"; title.style.webkitTextFillColor = "#fdb719"; title.style.color = "#fdb719";
 
-        html2canvas(document.getElementById('capture-area'), { 
-            backgroundColor: '#0a0a0a', scale: 2,
+        html2canvas(captureArea, { 
+            backgroundColor: '#0a0a0a', 
+            scale: 2,
+            windowWidth: 1200, // Spoofing desktop window
             onclone: (cloned) => {
                 cloned.querySelectorAll('select').forEach(s => {
                     const div = cloned.createElement('div');
@@ -260,8 +266,14 @@ function finishExport(name) {
                 });
             }
         }).then(canvas => {
-            const link = document.createElement('a'); link.download = `T20WC-Predictions.jpg`; link.href = canvas.toDataURL('image/jpeg', 0.9); link.click();
-            title.style.cssText = orig;
+            const link = document.createElement('a'); 
+            link.download = `T20WC-Predictions.jpg`; 
+            link.href = canvas.toDataURL('image/jpeg', 0.9); 
+            link.click();
+            
+            // REVERT BACK TO RESPONSIVE
+            title.style.cssText = origTitle;
+            captureArea.style.width = originalWidth;
         });
     } else { copyToText(name); }
     nameInput.value = "";
@@ -304,13 +316,22 @@ function fill(i1, i2, p) {
         else if (p.includes(val2)) e2.value = val2;
     }
 }
+
 function copyToText(user) {
     let header = user ? `🏆 *T20 WC Predictions by ${user}*` : `🏆 *My T20 WC Predictions*`;
-    const text = `${header}\n📅 Date: ${today}\n\n*Group 1:* ${v('S8G1W')}, ${v('S8G1RU')}\n*Group 2:* ${v('S8G2W')}, ${v('S8G2RU')}\n\n🚀 *SF 1:* ${v('S8G1W')} vs ${v('S8G2RU')}\n🚀 *SF 2:* ${v('S8G2W')} vs ${v('S8G1RU')}\n\n🏆 *CHAMPION:* ${v('CHAMPION')}`;
+    const text = `${header}\n📅 Date: ${today}\n\n` +
+    `🔥 *Super 8s Group 1:* ${v('S8G1W')}, ${v('S8G1RU')}\n` +
+    `🔥 *Super 8s Group 2:* ${v('S8G2W')}, ${v('S8G2RU')}\n\n` +
+    `🚀 *Semi Final 1:* ${v('S8G1W')} vs ${v('S8G2RU')}\n` +
+    `🚀 *Semi Final 2:* ${v('S8G2W')} vs ${v('S8G1RU')}\n\n` +
+    `🏆 *CHAMPION:* ${v('CHAMPION')}\n\n` +
+    `Predict yours here: ${window.location.href}`;
+
     navigator.clipboard.writeText(text).then(() => {
         const t = document.getElementById("toast"); t.className = "show"; setTimeout(() => t.className = "", 3000);
     });
 }
+
 function save() { const s = {}; IDs.forEach(id => s[id] = document.getElementById(id).value); localStorage.setItem('t20wc_v2', JSON.stringify(s)); }
 window.onload = () => {
     const s = localStorage.getItem('t20wc_v2');
